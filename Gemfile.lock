@@ -17,6 +17,8 @@ GEM
       byebug (~> 10.0)
       pry (~> 0.10)
     rake (10.5.0)
+    rake-compiler (1.0.5)
+      rake
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -39,6 +41,7 @@ DEPENDENCIES
   multi_string_replace!
   pry-byebug
   rake (~> 10.0)
+  rake-compiler
   rspec (~> 3.0)
 
 BUNDLED WITH

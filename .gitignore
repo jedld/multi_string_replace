@@ -6,6 +6,13 @@
 /pkg/
 /spec/reports/
 /tmp/
+*.bundle
+*.o
+*.log
+
+extconf.h
+Makefile
 
 # rspec failure tracking
 .rspec_status
+

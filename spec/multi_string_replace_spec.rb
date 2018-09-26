@@ -36,4 +36,8 @@ RSpec.describe MultiStringReplace do
       expect(sub.match("The quick brown fox jumps over the lazy dog")).to eq({"brown"=>[10], "jumps"=>[20]})
     end
   end
+
+  specify "native extension" do
+    puts MultiStringReplaceExt.match("The quick brown fox jumps over the lazy dog", ['brown', 'fox'])
+  end
 end
