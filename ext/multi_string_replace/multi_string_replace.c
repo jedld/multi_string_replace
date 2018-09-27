@@ -22,6 +22,7 @@ void callback_match_pos(VALUE rb_result_container, void *arg, struct aho_match_t
 
 VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
 {
+  Check_Type(keys, T_ARRAY);
   int state;
   VALUE result = rb_hash_new();
   struct ahocorasick aho;
@@ -43,6 +44,7 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
 
 VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
 {
+  Check_Type(replace, T_HASH);
   int state;
 
   struct ahocorasick aho;
@@ -53,26 +55,40 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   VALUE replace_values = rb_funcall(replace, rb_intern("values"), 0);
   long size =  RARRAY_LEN(keys);
   char *values[size];
+  VALUE ruby_val[size];
 
   for(long idx = 0; idx < size; idx++) {
     VALUE entry = rb_ary_entry(keys, idx);
     VALUE value = rb_ary_entry(replace_values, idx);
-
-    values[idx] = StringValueCStr(value);
+    if (RB_TYPE_P(value, T_STRING)) {
+      values[idx] = StringValueCStr(value);
+    } else {
+      values[idx] = NULL;
+      ruby_val[idx] = value;
+    }
+    
     aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
 
   aho_create_trie(&aho);
 
-  VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values);
+  VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values, ruby_val);
   aho_destroy(&aho);
   return result;
 }
 
 void Init_multi_string_replace()
 {
-  VALUE mod = rb_define_module("MultiStringReplaceExt");
+  int state;
+  VALUE mod = rb_eval_string_protect("MultiStringReplace", &state);
+
+  if (state)
+  {
+    /* handle exception */
+  } else {
   rb_define_singleton_method(mod, "match", multi_string_match, 2);
   rb_define_singleton_method(mod, "replace", multi_string_replace, 2);
+  }
+
 }
 

@@ -162,7 +162,7 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
     return match_count;
 }
 
-VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len, char *values[])
+VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len, char *values[], VALUE ruby_values[])
 {
     int i = 0;
     int match_count = 0;
@@ -193,6 +193,11 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data, unsi
         // concatenate from last_concat_pos
         rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
         // concatenate replace
+        if (values[result->id] == NULL) {
+            VALUE proc_result = rb_funcall(ruby_values[result->id], rb_intern("call"), 0);
+            values[result->id] = StringValueCStr(proc_result);
+        }
+
         rb_str_cat2(main_result, values[result->id]); 
         last_concat_pos = i + 1;
     }

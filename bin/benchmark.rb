@@ -20,12 +20,12 @@ replace = {
 }
 
 File.write('replaced.txt', body.gsub(/(#{replace.keys.join('|')})/, replace))
-File.write('replaced2.txt', MultiStringReplaceExt.replace(body, replace))
+File.write('replaced2.txt', MultiStringReplace.replace(body, replace))
 
 puts Benchmark.measure { 
   1000.times { body.gsub(/(#{replace.keys.join('|')})/,  replace) }
 }
 
 puts Benchmark.measure { 
-  1000.times { MultiStringReplaceExt.replace(body, replace) }
+  1000.times { MultiStringReplace.replace(body, replace) }
 }
