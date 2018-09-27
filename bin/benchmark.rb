@@ -16,7 +16,7 @@ replace = {
   'laoreet' => 'lllll',
   'Cras' => 'uuuuuuuu',
   'nunc' => 'eeeeeee',
-  'cursus' => 'dfsdfsf',
+  'cursus' => '乧乨乩乪乫乬乭乮乯买乱乲乳乴乵乶乷乸乹乺乻乼乽乾乿',
 }
 
 File.write('replaced.txt', body.gsub(/(#{replace.keys.join('|')})/, replace))
