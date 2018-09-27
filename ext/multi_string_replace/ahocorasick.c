@@ -155,19 +155,20 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
         match_count++;
         if (aho->callback_match)
         {
-            aho->callback_match(aho->callback_arg, &match);
+            aho->callback_match(aho->rb_result_container, aho->callback_arg, &match);
         }
     }
 
     return match_count;
 }
 
-inline void aho_register_match_callback(struct ahocorasick * restrict aho,
-        void (*callback_match)(void* arg, struct aho_match_t*),
+inline void aho_register_match_callback(VALUE rb_result_container, struct ahocorasick * restrict aho,
+        void (*callback_match)(VALUE rb_result_container, void* arg, struct aho_match_t*),
         void *arg)
 {
     aho->callback_arg = arg;
     aho->callback_match = callback_match;
+    aho->rb_result_container = rb_result_container;
 }
 
 void aho_print_match_text(struct ahocorasick * restrict aho)

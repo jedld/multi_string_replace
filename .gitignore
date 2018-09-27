@@ -9,6 +9,7 @@
 *.bundle
 *.o
 *.log
+*.so
 
 extconf.h
 Makefile

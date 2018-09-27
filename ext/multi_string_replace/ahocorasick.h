@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "aho_trie.h"
 #include "aho_text.h"
+#include "ruby.h"
 
 struct aho_match_t
 {
@@ -21,8 +22,9 @@ struct ahocorasick
 
     struct aho_trie trie;
 
-    void (*callback_match)(void* arg, struct aho_match_t*);
+    void (*callback_match)(VALUE rb_result_container, void* arg, struct aho_match_t*);
     void* callback_arg;
+    VALUE rb_result_container;
 };
 
 void aho_init(struct ahocorasick * restrict aho);
@@ -37,8 +39,8 @@ void aho_clear_trie(struct ahocorasick * restrict aho);
 
 unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len);
 
-void aho_register_match_callback(struct ahocorasick * restrict aho,
-        void (*callback_match)(void* arg, struct aho_match_t*),
+void aho_register_match_callback(VALUE rb_result_container, struct ahocorasick * restrict aho,
+        void (*callback_match)(VALUE rb_result_container, void* arg, struct aho_match_t*),
         void *arg);
 
 /* for debug */
