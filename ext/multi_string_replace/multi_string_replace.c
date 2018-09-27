@@ -24,7 +24,6 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
 {
   int state;
   VALUE result = rb_hash_new();
-  rb_eval_string("puts \"start1\" ");
   struct ahocorasick aho;
   aho_init(&aho);
   char *target = StringValueCStr(body);
@@ -42,9 +41,38 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
   return result;
 }
 
+VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
+{
+  int state;
+
+  struct ahocorasick aho;
+  aho_init(&aho);
+
+  char *target = StringValuePtr(body);
+  VALUE keys = rb_funcall(replace, rb_intern("keys"), 0);
+  VALUE replace_values = rb_funcall(replace, rb_intern("values"), 0);
+  long size =  RARRAY_LEN(keys);
+  char *values[size];
+
+  for(long idx = 0; idx < size; idx++) {
+    VALUE entry = rb_ary_entry(keys, idx);
+    VALUE value = rb_ary_entry(replace_values, idx);
+
+    values[idx] = StringValueCStr(value);
+    aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
+  }
+
+  aho_create_trie(&aho);
+
+  VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values);
+  aho_destroy(&aho);
+  return result;
+}
+
 void Init_multi_string_replace()
 {
   VALUE mod = rb_define_module("MultiStringReplaceExt");
   rb_define_singleton_method(mod, "match", multi_string_match, 2);
+  rb_define_singleton_method(mod, "replace", multi_string_replace, 2);
 }
 

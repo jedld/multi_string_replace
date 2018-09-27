@@ -37,11 +37,17 @@ RSpec.describe MultiStringReplace do
     end
   end
 
-  specify "native extension" do
-    expect(MultiStringReplaceExt.
-      match("The quick brown fox jumps over the lazy dog brown", ['brown', 'fox'])).to eq({
-        "brown" => [10, 44],
-        "fox" => [16]
-      })
+  context "native extension" do
+    specify ".match" do
+      expect(MultiStringReplaceExt.
+        match("The quick brown fox jumps over the lazy dog brown", ['brown', 'fox'])).to eq({
+          0 => [10, 44],
+          1 => [16]
+        })
+    end
+
+    specify ".replace" do
+      expect(MultiStringReplaceExt.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => 'wolf'})).to eq("xxxx")
+    end
   end
 end

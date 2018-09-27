@@ -38,6 +38,7 @@ void aho_create_trie(struct ahocorasick * restrict aho);
 void aho_clear_trie(struct ahocorasick * restrict aho);
 
 unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len);
+VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len, char *values[]);
 
 void aho_register_match_callback(VALUE rb_result_container, struct ahocorasick * restrict aho,
         void (*callback_match)(VALUE rb_result_container, void* arg, struct aho_match_t*),

@@ -17,22 +17,15 @@ replace = {
   'Cras' => 'uuuuuuuu',
   'nunc' => 'eeeeeee',
   'cursus' => 'dfsdfsf',
-  'et' => 'rrrrrr',
 }
 
 File.write('replaced.txt', body.gsub(/(#{replace.keys.join('|')})/, replace))
+File.write('replaced2.txt', MultiStringReplaceExt.replace(body, replace))
+
 puts Benchmark.measure { 
   1000.times { body.gsub(/(#{replace.keys.join('|')})/,  replace) }
 }
 
-sub = MultiStringReplace::Substitution.new(replace.keys).for(body)
-
 puts Benchmark.measure { 
-  1000.times { sub.process(replace) }
-}
-
-sub = MultiStringReplace::Substitution.new(replace.keys)
-
-puts Benchmark.measure { 
-  1000.times { sub.match(body) }
+  1000.times { MultiStringReplaceExt.replace(body, replace) }
 }

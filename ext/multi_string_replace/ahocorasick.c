@@ -162,6 +162,48 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
     return match_count;
 }
 
+VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len, char *values[])
+{
+    int i = 0;
+    int match_count = 0;
+    struct aho_trie_node* travasal_node = NULL;
+
+    travasal_node = &(aho->trie.root);
+    VALUE main_result = rb_str_new("", 0);
+
+    long last_concat_pos = 0;
+
+    for (i = 0; i < data_len; i++)
+    {
+        struct aho_match_t match;
+        struct aho_text_t* result;
+
+        result = aho_find_trie_node(&travasal_node, data[i]);
+        if (result == NULL)
+        {
+            continue;
+        }
+
+        long pos = i - result->len + 1;
+        if (result->len == 1)
+        {
+            pos = i;
+        }
+
+        // concatenate from last_concat_pos
+        rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
+        // concatenate replace
+        rb_str_cat2(main_result, values[result->id]); 
+        last_concat_pos = i + 1;
+    }
+
+    if (last_concat_pos < data_len - 1) {
+        rb_str_cat(main_result, &data[last_concat_pos], data_len - last_concat_pos);
+    }
+
+    return main_result;
+}
+
 inline void aho_register_match_callback(VALUE rb_result_container, struct ahocorasick * restrict aho,
         void (*callback_match)(VALUE rb_result_container, void* arg, struct aho_match_t*),
         void *arg)
