@@ -7,18 +7,10 @@
 
 void callback_match_pos(VALUE rb_result_container, void *arg, struct aho_match_t* m)
 {
-    char* text = (char*)arg;
     
-    char buffer[255];
     unsigned int i = m->pos, idx = 0;
 
-    for( ; i < (m->pos+m->len); i++)
-    {
-        buffer[idx++] = text[i];
-    }
-    buffer[idx] = 0;
-
-    VALUE key = rb_str_new_cstr(buffer);
+    VALUE key = LONG2NUM(m->id);
     VALUE hash_value = rb_hash_aref(rb_result_container, key);
 
     if (NIL_P(hash_value)) {
