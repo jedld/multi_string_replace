@@ -53,7 +53,7 @@ MultiStringReplace   0.260000   0.010000   0.270000 (  0.277135)
 mreplace             0.260000   0.020000   0.280000 (  0.281935)
 ```
 
-Benchmark sources can be found here: <https://github.com/jedld/mutli_word_replace/blob/master/bin/benchmark.rb>
+Benchmark sources can be found here: <https://github.com/jedld/multi_word_replace/blob/master/bin/benchmark.rb>
 
 ## Development
 
