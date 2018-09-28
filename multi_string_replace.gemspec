@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm}
   spec.description   = %q{A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm}
-  spec.homepage      = "https://github.com/jedld/mutli_word_replace"
+  spec.homepage      = "https://github.com/jedld/multi_string_replace"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
