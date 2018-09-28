@@ -9,15 +9,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Joseph Dayo"]
   spec.email         = ["joseph.dayo@gmail.com"]
 
-  spec.summary       = %q{Efficient O(N) multiword string replace for ruby}
-  spec.description   = %q{Efficient O(N) multiword string replace for ruby}
-  spec.homepage      = "https://github.com/jedld"
+  spec.summary       = %q{A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm}
+  spec.description   = %q{A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm}
+  spec.homepage      = "https://github.com/jedld/mutli_word_replace"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "http://rubygems.org"
+    spec.metadata["allowed_push_host"] = "https://rubygems.org"
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."

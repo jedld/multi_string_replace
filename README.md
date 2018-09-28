@@ -1,8 +1,9 @@
 # MultiStringReplace
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/multi_string_replace`. To experiment with that code, run `bin/console` for an interactive prompt.
+A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm based
+on https://github.com/morenice/ahocorasick while adding support for on the fly multiple string replacement.
 
-TODO: Delete this and the text above, and describe your gem
+If Regex is not needed, this library offers significant performance advantages over String.gsub()
 
 ## Installation
 
@@ -22,7 +23,33 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+MultiStringReplace.match("The quick brown fox jumps over the lazy dog brown", ['brown', 'fox'])
+# { 0 => [10, 44], 1 => [16] }
+MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => 'wolf'})
+# The quick black wolf jumps over the lazy dog black
+```
+
+You can also pass in a Proc, these will only get evaluated when the token is encountered.
+
+```ruby
+MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->() { "cat" }})
+```
+
+## Performance
+
+Performing token replacement on a 1MB text file
+
+```
+Rehearsal ------------------------------------------------------
+multi gsub           0.019270   0.000000   0.019270 (  0.020151)
+MultiStringReplace   0.002258   0.000143   0.002401 (  0.002639)
+--------------------------------------------- total: 0.021671sec
+
+                         user     system      total        real
+multi gsub           0.009492   0.000000   0.009492 (  0.010147)
+MultiStringReplace   0.002502   0.000000   0.002502 (  0.002615)
+```
 
 ## Development
 

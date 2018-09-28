@@ -54,14 +54,18 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   VALUE keys = rb_funcall(replace, rb_intern("keys"), 0);
   VALUE replace_values = rb_funcall(replace, rb_intern("values"), 0);
   long size =  RARRAY_LEN(keys);
+
+  long value_sizes[size];
   char *values[size];
   VALUE ruby_val[size];
 
   for(long idx = 0; idx < size; idx++) {
     VALUE entry = rb_ary_entry(keys, idx);
     VALUE value = rb_ary_entry(replace_values, idx);
+
     if (RB_TYPE_P(value, T_STRING)) {
-      values[idx] = StringValueCStr(value);
+      values[idx] = StringValuePtr(value);
+      value_sizes[idx] = RSTRING_LEN(value);
     } else {
       values[idx] = NULL;
       ruby_val[idx] = value;
@@ -72,7 +76,7 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
 
   aho_create_trie(&aho);
 
-  VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values, ruby_val);
+  VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values, value_sizes, ruby_val);
   aho_destroy(&aho);
   return result;
 }
