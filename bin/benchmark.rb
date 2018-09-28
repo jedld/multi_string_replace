@@ -3,6 +3,16 @@ require 'multi_string_replace'
 require 'benchmark'
 require 'pry-byebug'
 
+class String
+  def mgsub(key_value_pairs=[].freeze)
+    regexp_fragments = key_value_pairs.collect { |k,v| k }
+    gsub( 
+Regexp.union(*regexp_fragments)) do |match|
+      key_value_pairs.detect{|k,v| k =~ match}[1]
+    end
+  end
+end
+
 body = File.read(File.join('spec', 'fixtures', 'test.txt'))
 
 replace = {
@@ -22,10 +32,7 @@ replace = {
 File.write('replaced.txt', body.gsub(/(#{replace.keys.join('|')})/, replace))
 File.write('replaced2.txt', MultiStringReplace.replace(body, replace))
 
-puts Benchmark.measure { 
-  1000.times { body.gsub(/(#{replace.keys.join('|')})/,  replace) }
-}
-
-puts Benchmark.measure { 
-  1000.times { MultiStringReplace.replace(body, replace) }
-}
+Benchmark.bmbm do |x|
+  x.report "multi gsub" do body.mgsub(replace.map { |k, v| [/#{k}/, v] } ) end
+  x.report "MultiStringReplace" do MultiStringReplace.replace(body, replace) end
+end
