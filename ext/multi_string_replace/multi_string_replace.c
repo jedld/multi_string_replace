@@ -1,3 +1,15 @@
+
+// MIT License
+
+// Copyright (c) 2018 Joseph Dayo
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
 #include "ruby.h"
 #include "extconf.h"
 #include <stdio.h>
@@ -27,17 +39,22 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
   VALUE result = rb_hash_new();
   struct ahocorasick aho;
   aho_init(&aho);
-  char *target = StringValueCStr(body);
+  char *target = StringValuePtr(body);
   long size =  RARRAY_LEN(keys);
   
   for(long idx = 0; idx < size; idx++) {
     VALUE entry = rb_ary_entry(keys, idx);
-    char *key_text = StringValueCStr(entry);
-    aho_add_match_text(&aho,  key_text, strlen(key_text));
+    char *key_text;
+
+    if (!RB_TYPE_P(entry, T_STRING)) {
+      entry = rb_funcall(entry, rb_intern("to_s"), 0);
+    }
+
+    aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
   aho_create_trie(&aho);
   aho_register_match_callback(result, &aho, callback_match_pos, (void*)target);
-  long count = aho_findtext(&aho, target, strlen(target));
+  aho_findtext(&aho, target, RSTRING_LEN(body));
   aho_destroy(&aho);
   return result;
 }
@@ -62,6 +79,12 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   for(long idx = 0; idx < size; idx++) {
     VALUE entry = rb_ary_entry(keys, idx);
     VALUE value = rb_ary_entry(replace_values, idx);
+
+    char *key_text;
+
+    if (!RB_TYPE_P(entry, T_STRING)) {
+      entry = rb_funcall(entry, rb_intern("to_s"), 0);
+    }
 
     if (RB_TYPE_P(value, T_STRING)) {
       values[idx] = StringValuePtr(value);

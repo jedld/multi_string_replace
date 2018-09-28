@@ -1,7 +1,6 @@
 require "bundler/setup"
 require 'multi_string_replace'
 require 'benchmark'
-require 'pry-byebug'
 
 class String
   def mgsub(key_value_pairs=[].freeze)
@@ -33,6 +32,7 @@ File.write('replaced.txt', body.gsub(/(#{replace.keys.join('|')})/, replace))
 File.write('replaced2.txt', MultiStringReplace.replace(body, replace))
 
 Benchmark.bmbm do |x|
-  x.report "multi gsub" do body.mgsub(replace.map { |k, v| [/#{k}/, v] } ) end
-  x.report "MultiStringReplace" do MultiStringReplace.replace(body, replace) end
+  x.report "multi gsub" do 100.times { body.mgsub(replace.map { |k, v| [/#{k}/, v] } ) } end
+  x.report "MultiStringReplace" do 100.times { MultiStringReplace.replace(body, replace) } end
+  x.report "mreplace" do 100.times { body.mreplace(replace) } end
 end
