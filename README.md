@@ -3,7 +3,7 @@
 A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm based
 on https://github.com/morenice/ahocorasick while adding support for on the fly multiple string replacement.
 
-If Regex is not needed, this library offers significant performance advantages over String.gsub()
+If Regex is not needed, this library offers significant performance advantages over String.gsub() for large string and with a large number of tokens.
 
 ## Installation
 
@@ -36,19 +36,21 @@ You can also pass in a Proc, these will only get evaluated when the token is enc
 MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->() { "cat" }})
 ```
 
+Also adds a mreplace method to String which does the same thing:
+
+```ruby
+"The quick brown fox jumps over the lazy dog brown".mreplace({'brown' => 'black', 'fox' => ->() { "cat" }})
+```
+
 ## Performance
 
-Performing token replacement on a 1MB text file
+Performing token replacement on a 200K text file repeated 100 times
 
 ```
-Rehearsal ------------------------------------------------------
-multi gsub           0.019270   0.000000   0.019270 (  0.020151)
-MultiStringReplace   0.002258   0.000143   0.002401 (  0.002639)
---------------------------------------------- total: 0.021671sec
-
                          user     system      total        real
-multi gsub           0.009492   0.000000   0.009492 (  0.010147)
-MultiStringReplace   0.002502   0.000000   0.002502 (  0.002615)
+multi gsub           1.740000   0.020000   1.760000 (  1.790068)
+MultiStringReplace   0.260000   0.010000   0.270000 (  0.277135)
+mreplace             0.260000   0.020000   0.280000 (  0.281935)
 ```
 
 ## Development
