@@ -1,3 +1,7 @@
+
+[![Gem](https://img.shields.io/gem/v/multi_string_replace.svg)](https://rubygems.org/gems/multi_string_replace)
+
+
 # MultiStringReplace
 
 A fast multiple string replace library for ruby. Uses a C implementation of the Aho–Corasick Algorithm based
