@@ -24,12 +24,17 @@ RSpec.describe MultiStringReplace do
         1 => [184, 336],
       })
 
-      expect(MultiStringReplace.
-        match(body,%i(consectetur rutrum))).to eq({
-          0 => [28, 172],
-          1 => [184, 336],
-        })
-    end
+    expect(MultiStringReplace.
+      match(body,%i(consectetur rutrum))).to eq({
+        0 => [28, 172],
+        1 => [184, 336],
+      })
+  end
+
+  specify "no matches" do
+    expect(MultiStringReplace.
+      match(body,%w(yyyyy bbbbbb))).to eq({})
+  end
 
   specify ".replace" do
     expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => 'wolf'})).
@@ -41,6 +46,10 @@ RSpec.describe MultiStringReplace do
   specify ".replace with proc" do
     expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->() { "cat" }})).
         to eq("The quick black cat jumps over the lazy dog black")
+  end
+
+  specify ".replace nothing to replace" do
+    expect(body.mreplace({'XXXXXXXXX' => 'yyyyyyyy'})). to eq(body)
   end
 
   specify "String patches" do
