@@ -65,7 +65,6 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   int state;
 
   struct ahocorasick aho;
-  aho_init(&aho);
 
   char *target = StringValuePtr(body);
   VALUE keys = rb_funcall(replace, rb_intern("keys"), 0);
@@ -75,6 +74,8 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   long value_sizes[size];
   char *values[size];
   VALUE ruby_val[size];
+  
+  aho_init(&aho);
 
   for(long idx = 0; idx < size; idx++) {
     VALUE entry = rb_ary_entry(keys, idx);
@@ -94,9 +95,8 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
       ruby_val[idx] = value;
     }
     
-    aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
+   aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
-
   aho_create_trie(&aho);
 
   VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values, value_sizes, ruby_val);

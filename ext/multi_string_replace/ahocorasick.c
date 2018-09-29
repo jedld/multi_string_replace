@@ -32,6 +32,7 @@ void aho_destroy(struct ahocorasick * restrict aho)
 int aho_add_match_text(struct ahocorasick * restrict aho, const char* text, unsigned int len)
 {
     struct aho_text_t* a_text = NULL;
+
     if (aho->accumulate_text_id == AHO_MAX_TEXT_ID)
     {
         return -1;
@@ -42,11 +43,14 @@ int aho_add_match_text(struct ahocorasick * restrict aho, const char* text, unsi
         goto lack_free_mem;
 
     a_text->text = (char*) malloc(sizeof(char)*len);
+
     if (!a_text->text)
         goto lack_free_mem;
 
     a_text->id = aho->accumulate_text_id++;
+
     memcpy(a_text->text, text, len);
+
     a_text->len = len;
     a_text->prev = NULL;
     a_text->next = NULL;
@@ -66,6 +70,7 @@ int aho_add_match_text(struct ahocorasick * restrict aho, const char* text, unsi
     return a_text->id;
 
 lack_free_mem:
+    
     return -1;
 }
 
@@ -122,7 +127,9 @@ void aho_create_trie(struct ahocorasick * restrict aho)
 
     for (iter = aho->text_list_head; iter != NULL; iter = iter->next)
     {
+
         aho_add_trie_node(&(aho->trie), iter);
+
     }
 
     aho_connect_link(&(aho->trie));
@@ -204,7 +211,10 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
         }
 
         // concatenate from last_concat_pos
-        rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
+        if (pos > last_concat_pos) {
+            rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
+        }
+
         // concatenate replace
         if (values[result->id] == NULL) {
             VALUE proc_result = rb_funcall(ruby_values[result->id], rb_intern("call"), 0);

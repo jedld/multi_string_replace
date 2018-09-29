@@ -56,4 +56,25 @@ RSpec.describe MultiStringReplace do
     expect(body.mreplace({ 'Lorem' => 'Replace1', 'consectetur' => 'consecutive'})).to eq("Replace1 ipsum dolor sit amet, consecutive brown elit. Proin vehicula brown egestas.Aliquam a dui tincidunt, elementum sapien in, ultricies lacus. Phasellus congue, sapien necconsecutive rutrum, eros ex ullamcorper orci, in lobortis turpis mi et odio. Sed sellissapien a quam elementum, quis fringilla mi pulvinar. Aenean cursus sapien at rutrum commodo.Aliquam ultrices dapibus ante, eu volutpat nisi dictum eget. Vivamus sellis ipsum tellus, vitae tempor diam fermentum ut.")
     expect(body.mreplace({ 'Lorem' => ->() {'Replace2'}, 'consectetur' => 'consecutive'})).to eq("Replace2 ipsum dolor sit amet, consecutive brown elit. Proin vehicula brown egestas.Aliquam a dui tincidunt, elementum sapien in, ultricies lacus. Phasellus congue, sapien necconsecutive rutrum, eros ex ullamcorper orci, in lobortis turpis mi et odio. Sed sellissapien a quam elementum, quis fringilla mi pulvinar. Aenean cursus sapien at rutrum commodo.Aliquam ultrices dapibus ante, eu volutpat nisi dictum eget. Vivamus sellis ipsum tellus, vitae tempor diam fermentum ut.")
   end
+
+  context "gsub equivalency test" do
+    let(:replace_hash) do
+      tokens = body.gsub("\.",' ').gsub("\,",' ').split(' ').uniq.reject { |t| t.size < 7 }
+      random_keys = tokens.shuffle
+      random_values = tokens.shuffle
+      random_keys.zip(random_values).collect do |x,y|
+        [x, y]
+      end.to_h
+    end
+
+    it "should be equal" do
+      puts replace_hash
+      body_per_line = body.gsub(' ', "\n") # to make it easier to debug
+      puts body_per_line
+      gsub_value = body_per_line.gsub(/(#{replace_hash.keys.map{ |k| Regexp.quote(k) }.join('|')})/, replace_hash)
+      mreplace_value = body_per_line.mreplace(replace_hash)
+
+      expect(mreplace_value).to eq(gsub_value)
+    end
+  end
 end

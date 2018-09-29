@@ -43,7 +43,7 @@ bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restric
             __aho_trie_node_init(travasal_node->child_list[0]);
             travasal_node->child_list[0]->text = node_text;
             travasal_node->child_list[0]->parent = travasal_node;
-
+            travasal_node->child_list[0]->failure_link = &(t->root);
             travasal_node = travasal_node->child_list[0];
             continue;
         }
@@ -81,7 +81,7 @@ bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restric
             __aho_trie_node_init(child_node);
             child_node->text = node_text;
             child_node->parent = travasal_node;
-
+            child_node->failure_link = &(t->root);
             travasal_node = child_node;
         }
     }
@@ -99,7 +99,6 @@ bool __aho_connect_link(struct aho_trie_node* p, struct aho_trie_node* q)
 {
     struct aho_trie_node *pf = NULL;
     int i = 0;
-
     /* is root node */
     if (p->parent == NULL)
     {
@@ -108,6 +107,7 @@ bool __aho_connect_link(struct aho_trie_node* p, struct aho_trie_node* q)
     }
 
     pf = p->failure_link;
+
     for (i=0; i < pf->child_count; i++)
     {
         /* check child node of failure link(p) */
@@ -161,7 +161,6 @@ void aho_connect_link(struct aho_trie * restrict t)
         for (i=0; i < p->child_count; i++)
         {
             struct aho_trie_node *pf = p;
-
             aho_queue_enqueue(&queue, p->child_list[i]);
             q = p->child_list[i];
 
@@ -169,9 +168,9 @@ void aho_connect_link(struct aho_trie * restrict t)
             {
                 pf = pf->failure_link;
             }
+
         }
     }
-
     aho_queue_destroy(&queue);
 }
 
