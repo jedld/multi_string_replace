@@ -52,6 +52,7 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
 
     aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
+
   aho_create_trie(&aho);
   aho_register_match_callback(result, &aho, callback_match_pos, (void*)target);
   aho_findtext(&aho, target, RSTRING_LEN(body));

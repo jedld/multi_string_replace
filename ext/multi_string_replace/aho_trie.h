@@ -11,6 +11,9 @@ struct aho_trie_node
 
     struct aho_trie_node* parent;
     struct aho_trie_node* child_list[MAX_AHO_CHILD_NODE];
+    struct aho_trie_node* first_child;
+    struct aho_trie_node* last_child;
+    struct aho_trie_node* next;
     unsigned int child_count;
 
     bool text_end;
