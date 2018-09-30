@@ -29,6 +29,13 @@ RSpec.describe MultiStringReplace do
         0 => [28, 172],
         1 => [184, 336],
       })
+
+      expect(MultiStringReplace.
+        match("The quick brown brave fox jumps over the lazy dog brown", ['brown', 'fox', 'brave'])).to eq({
+          0 => [10, 50],
+          1 => [22],
+          2 => [16],
+        })  
   end
 
   specify "no matches" do
