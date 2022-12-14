@@ -55,6 +55,7 @@ VALUE multi_string_match(VALUE self, VALUE body, VALUE keys)
 
   aho_create_trie(&aho);
   aho_register_match_callback(result, &aho, callback_match_pos, (void*)target);
+
   aho_findtext(&aho, target, RSTRING_LEN(body));
   aho_destroy(&aho);
   return result;
@@ -99,7 +100,6 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
    aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
   aho_create_trie(&aho);
-
   VALUE result = aho_replace_text(&aho, target, RSTRING_LEN(body), values, value_sizes, ruby_val);
   aho_destroy(&aho);
   return result;

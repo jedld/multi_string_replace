@@ -226,7 +226,7 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
         last_concat_pos = i + 1;
     }
 
-    if (last_concat_pos < data_len - 1) {
+    if (last_concat_pos < data_len) {
         rb_str_cat(main_result, &data[last_concat_pos], data_len - last_concat_pos);
     }
 

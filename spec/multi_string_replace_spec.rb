@@ -64,6 +64,12 @@ RSpec.describe MultiStringReplace do
     expect(body.mreplace({ 'Lorem' => ->() {'Replace2'}, 'consectetur' => 'consecutive'})).to eq("Replace2 ipsum dolor sit amet, consecutive brown elit. Proin vehicula brown egestas.Aliquam a dui tincidunt, elementum sapien in, ultricies lacus. Phasellus congue, sapien necconsecutive rutrum, eros ex ullamcorper orci, in lobortis turpis mi et odio. Sed sellissapien a quam elementum, quis fringilla mi pulvinar. Aenean cursus sapien at rutrum commodo.Aliquam ultrices dapibus ante, eu volutpat nisi dictum eget. Vivamus sellis ipsum tellus, vitae tempor diam fermentum ut.")
   end
 
+  # https://github.com/jedld/multi_string_replace/issues/3
+  specify "fix newline behavior" do
+    expect(MultiStringReplace.replace("string ends with a replace\n", { 'replace': '123' })).to eq("string ends with a 123\n")
+    expect(MultiStringReplace.replace("string ends with a replacex", { 'replace': '123' })).to eq("string ends with a 123x")
+  end
+
   context "gsub equivalency test" do
     let(:replace_hash) do
       tokens = body.gsub("\.",' ').gsub("\,",' ').split(' ').uniq.reject { |t| t.size < 7 }
