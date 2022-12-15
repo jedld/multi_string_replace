@@ -88,13 +88,16 @@ bool __aho_connect_link(struct aho_trie_node* p, struct aho_trie_node* q)
     struct aho_trie_node *pf = NULL;
     int i = 0;
     /* is root node */
-    if (p->parent == NULL)
+    if (p->failure_link == NULL || p->parent == NULL)
     {
         q->failure_link = p;
         return true;
     }
 
     pf = p->failure_link;
+    
+    if( pf == NULL )
+        return true;
 
     /* check child node of failure link(p) */
     if (pf->child_list[q->text] != NULL)
@@ -207,6 +210,9 @@ bool __aho_find_trie_node(struct aho_trie_node** restrict start, const unsigned 
 
     search_node = *start;
 
+    if (search_node == NULL)
+        return false;
+
     if (search_node->child_list[(unsigned int)text] != NULL)
     {
         /* find it! move to find child node! */
@@ -225,7 +231,7 @@ struct aho_text_t* aho_find_trie_node(struct aho_trie_node** restrict start, con
         /* not found!
          * when root node stop
          */
-        if( (*start)->parent == NULL)
+        if( *start == NULL || (*start)->parent == NULL)
         {
             return NULL;
         }

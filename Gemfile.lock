@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    multi_string_replace (1.0.5)
+    multi_string_replace (1.0.6)
 
 GEM
   remote: https://rubygems.org/
@@ -28,11 +28,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.16)
+  bundler (~> 2.3.26)
   multi_string_replace!
   rake
   rake-compiler
   rspec (~> 3.0)
 
 BUNDLED WITH
-   1.16.5
+   2.3.26
