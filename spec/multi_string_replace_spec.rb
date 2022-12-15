@@ -66,8 +66,14 @@ RSpec.describe MultiStringReplace do
 
   # https://github.com/jedld/multi_string_replace/issues/3
   specify "fix newline behavior" do
+    expect(MultiStringReplace.replace("string ends with a replace", { 'replace': '123' })).to eq("string ends with a 123")
     expect(MultiStringReplace.replace("string ends with a replace\n", { 'replace': '123' })).to eq("string ends with a 123\n")
     expect(MultiStringReplace.replace("string ends with a replacex", { 'replace': '123' })).to eq("string ends with a 123x")
+  end
+
+  specify "edge cases" do
+    expect(MultiStringReplace.replace("string ends with a replace", { 'string': '123' })).to eq("123 ends with a replace")
+    expect(MultiStringReplace.replace("xstring ends with a replace", { 'string': '123' })).to eq("x123 ends with a replace")
   end
 
   context "gsub equivalency test" do
