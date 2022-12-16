@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    multi_string_replace (1.0.6)
+    multi_string_replace (1.0.7)
 
 GEM
   remote: https://rubygems.org/
