@@ -36,16 +36,16 @@ MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", 
 # The quick black wolf jumps over the lazy dog black
 ```
 
-You can also pass in a Proc, these will only get evaluated when the token is encountered.
+You can also pass in a Proc, these will only get evaluated when the token is encountered. The start and end replace position will passed to the proc.
 
 ```ruby
-MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->() { "cat" }})
+MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { "cat" }})
 ```
 
 Also adds a mreplace method to String which does the same thing:
 
 ```ruby
-"The quick brown fox jumps over the lazy dog brown".mreplace({'brown' => 'black', 'fox' => ->() { "cat" }})
+"The quick brown fox jumps over the lazy dog brown".mreplace({'brown' => 'black', 'fox' => ->(_, _) { "cat" }})
 ```
 
 ## Performance

@@ -217,10 +217,12 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
         if (pos > last_concat_pos) {
             rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
         }
+        
+
 
         // concatenate replace
         if (values[result->id] == NULL) {
-            VALUE proc_result = rb_funcall(ruby_values[result->id], rb_intern("call"), 0);
+            VALUE proc_result = rb_funcall(ruby_values[result->id], rb_intern("call"), 2, LONG2NUM(pos), LONG2NUM(pos + result->len));
             value_sizes[result->id] = RSTRING_LEN(proc_result);
             values[result->id] = StringValuePtr(proc_result);
         }
