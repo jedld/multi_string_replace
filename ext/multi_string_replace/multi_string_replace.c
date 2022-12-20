@@ -93,10 +93,18 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
       values[idx] = StringValuePtr(value);
       value_sizes[idx] = RSTRING_LEN(value);
     } else {
-      values[idx] = NULL;
-      ruby_val[idx] = value;
+     
+      VALUE responds_value = rb_funcall(value, rb_intern("respond_to?"), 1, rb_str_new_cstr("call"));
+      if (RB_TYPE_P(responds_value, T_TRUE)) {
+        values[idx] = NULL;
+        ruby_val[idx] = value;
+      } else {
+        VALUE value_as_string = rb_funcall(value, rb_intern("to_s"), 0);
+        values[idx] = StringValuePtr(value_as_string);
+        value_sizes[idx] = RSTRING_LEN(value_as_string);
+      }
     }
-    
+
    aho_add_match_text(&aho, StringValuePtr(entry), RSTRING_LEN(entry));
   }
   aho_create_trie(&aho);

@@ -44,8 +44,8 @@ RSpec.describe MultiStringReplace do
   end
 
   specify ".replace" do
-    expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => 'wolf'})).
-        to eq("The quick black wolf jumps over the lazy dog black")
+    expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => 'wolf', 'the' => 0})).
+        to eq("The quick black wolf jumps over 0 lazy dog black")
 
     expect(MultiStringReplace.replace(body, 'fermentum ut.' => '')).to eq("Lorem ipsum dolor sit amet, consectetur brown elit. Proin vehicula brown egestas.Aliquam a dui tincidunt, elementum sapien in, ultricies lacus. Phasellus congue, sapien necconsectetur rutrum, eros ex ullamcorper orci, in lobortis turpis mi et odio. Sed sellissapien a quam elementum, quis fringilla mi pulvinar. Aenean cursus sapien at rutrum commodo.Aliquam ultrices dapibus ante, eu volutpat nisi dictum eget. Vivamus sellis ipsum tellus, vitae tempor diam ")
   end
@@ -76,8 +76,11 @@ RSpec.describe MultiStringReplace do
     end
 
     specify ".replace returning '' should remove the string" do
-      expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { "" }}))
-        .to eq("The quick black  jumps over the lazy dog black")
+      expect(MultiStringReplace.replace("The quick brown fox jumps over the 0 dog brown", {'brown' => 'black', 
+        'fox' => ->(s, e) { "" },
+        'lazy' => -> (s, e) { 0 }
+        }))
+        .to eq("The quick black  jumps over the 0 dog black")
     end
   end
 
