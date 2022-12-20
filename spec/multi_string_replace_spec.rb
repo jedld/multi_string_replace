@@ -50,23 +50,35 @@ RSpec.describe MultiStringReplace do
     expect(MultiStringReplace.replace(body, 'fermentum ut.' => '')).to eq("Lorem ipsum dolor sit amet, consectetur brown elit. Proin vehicula brown egestas.Aliquam a dui tincidunt, elementum sapien in, ultricies lacus. Phasellus congue, sapien necconsectetur rutrum, eros ex ullamcorper orci, in lobortis turpis mi et odio. Sed sellissapien a quam elementum, quis fringilla mi pulvinar. Aenean cursus sapien at rutrum commodo.Aliquam ultrices dapibus ante, eu volutpat nisi dictum eget. Vivamus sellis ipsum tellus, vitae tempor diam ")
   end
 
-  specify ".replace with proc" do
-    expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(_, _) { "cat" }})).
-        to eq("The quick black cat jumps over the lazy dog black")
-  end
+  context "replace using proc" do
+    specify ".replace with proc" do
+      expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(_, _) { "cat" }})).
+          to eq("The quick black cat jumps over the lazy dog black")
+    end
 
-  specify ".replace with proc should provide match index" do
-    expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'fox' => ->(s, e) {
-        expect(s).to eq 16
-        expect(e).to eq 19
-      "cat"
-      }, 
-      "jumps" => ->(s, e) {
-        expect(s).to eq 20
-        expect(e).to eq 25
-        "rat"
-      }
-      })).to eq("The quick brown cat rat over the lazy dog brown")
+    specify ".replace with proc should provide match index" do
+      expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'fox' => ->(s, e) {
+          expect(s).to eq 16
+          expect(e).to eq 19
+        "cat"
+        }, 
+        "jumps" => ->(s, e) {
+          expect(s).to eq 20
+          expect(e).to eq 25
+          "rat"
+        }
+        })).to eq("The quick brown cat rat over the lazy dog brown")
+    end
+
+    specify ".replace returning nil should not change the string" do
+      expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'fox' => ->(s, e) { nil }}))
+      .to eq("The quick brown fox jumps over the lazy dog brown")
+    end
+
+    specify ".replace returning '' should remove the string" do
+      expect(MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { "" }}))
+        .to eq("The quick black  jumps over the lazy dog black")
+    end
   end
 
   specify ".replace nothing to replace" do

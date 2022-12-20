@@ -40,7 +40,17 @@ You can also pass in a Proc, these will only get evaluated when the token is enc
 
 ```ruby
 MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { "cat" }})
+# => "The quick black cat jumps over the lazy dog black"
+
+# returning nil will cause the substitution to be ignored.
+MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { nil }})
+# => "The quick black fox jumps over the lazy dog black"
+
+MultiStringReplace.replace("The quick brown fox jumps over the lazy dog brown", {'brown' => 'black', 'fox' => ->(s, e) { "" }})
+# => "The quick black  jumps over the lazy dog black"
 ```
+
+This should allow for very fast and simple templating systems.
 
 Also adds a mreplace method to String which does the same thing:
 
