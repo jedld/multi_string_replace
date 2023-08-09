@@ -29,7 +29,7 @@ bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restric
 
     for (int text_idx = 0; text_idx < text->len; text_idx++)
     {
-        unsigned int node_text = text->text[text_idx];
+        unsigned char node_text = text->text[text_idx];
         bool find_node = false;
         int child_idx = 0;
 

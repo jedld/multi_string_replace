@@ -125,4 +125,10 @@ RSpec.describe MultiStringReplace do
       expect(mreplace_value).to eq(gsub_value)
     end
   end
+
+  context "non-ascii characters" do
+    it "shouldn't crash on binary characters" do
+      expect(MultiStringReplace.replace("", {"\xE9" => ""})).to eq("")
+    end
+  end
 end
