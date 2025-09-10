@@ -69,7 +69,31 @@ MultiStringReplace   0.196823   0.007979   0.204802 (  0.207219)
 mreplace             0.200593   0.004031   0.204624 (  0.205379)
 ```
 
-Benchmark sources can be found here: <https://github.com/jedld/multi_word_replace/blob/master/bin/benchmark.rb>
+Benchmark source: <https://github.com/jedld/multi_string_replace/blob/master/bin/benchmark.rb>
+
+### Run the benchmark locally
+
+1) Install dependencies
+
+```bash
+bundle install
+```
+
+2) Compile the native extension (recommended for accurate numbers)
+
+```bash
+bundle exec rake compile
+```
+
+3) Run the benchmark script
+
+```bash
+bundle exec ruby bin/benchmark.rb
+```
+
+Notes:
+- The script reads the sample text from `spec/fixtures/test.txt` and will write results to `replaced.txt` and `replaced2.txt` in the repo root.
+- To change the number of iterations or the input text, edit `bin/benchmark.rb` (look for the `100.times` loop and the `spec/fixtures/test.txt` path).
 
 ## Development
 
