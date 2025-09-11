@@ -186,6 +186,11 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
   VALUE replace_values = rb_funcall(replace, id_values, 0);
   long size =  RARRAY_LEN(keys);
 
+  if (size == 0) {
+    // Nothing to replace; return a copy of input (preserves API semantics)
+    return rb_str_dup(body);
+  }
+
   long value_sizes[size];
   char *values[size];
   VALUE ruby_val[size];

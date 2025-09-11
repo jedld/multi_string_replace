@@ -2,35 +2,27 @@ name: CI
 
 on:
   push:
+    branches: [ master ]
   pull_request:
-  workflow_dispatch:
-#  schedule:
-#    - cron: '42 5 * * *'
+    branches: [ master ]
 
 jobs:
   test:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.0' ]
-
-    runs-on: ubuntu-latest
-    name: Ruby ${{matrix.ruby}}
-    container: ruby:${{matrix.ruby}}
-
+        ruby: [ '3.0', '3.1', '3.2', '3.3', '3.4' ]
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Show ruby Version
-      run: |
-        ruby -v
-
-    - name: Install Modules
-      run: ./bin/setup
-
-    - name: Compile
-      run: rake compile
-
-    - name: Run tests
-      run: rake spec
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+      - name: Compile native extension
+        run: rake compile
+      - name: Run specs
+        run: rake spec
 

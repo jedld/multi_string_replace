@@ -194,9 +194,8 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
     struct aho_trie_node* travasal_node = NULL;
 
     travasal_node = &(aho->trie.root);
-    // Preallocate with input size; Ruby will grow if needed
-    VALUE main_result = rb_str_buf_new((long)data_len);
-
+    // Defer allocation until first match; handle no-match fast path
+    VALUE main_result = Qnil;
     unsigned long long last_concat_pos = 0;
 
     for (i = 0; i < data_len; i++)
@@ -212,8 +211,11 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
     const int rlen = result->len;
     unsigned long long pos = i - rlen + 1;
 
-        // concatenate from last_concat_pos
-        if (pos > last_concat_pos) {
+        // On first match, allocate result and copy prefix if any
+        if (NIL_P(main_result)) {
+            main_result = rb_str_buf_new((long)data_len);
+            if (pos > 0) rb_str_cat(main_result, &data[0], pos);
+        } else if (pos > last_concat_pos) {
             rb_str_cat(main_result, &data[last_concat_pos], pos - last_concat_pos);
         }
         
@@ -249,11 +251,15 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
         last_concat_pos = i + 1;
     }
 
-    if (last_concat_pos < data_len) {
-        rb_str_cat(main_result, &data[last_concat_pos], (long)(data_len - last_concat_pos));
+    if (NIL_P(main_result)) {
+        // No matches; return a copy of input (preserves previous API behavior of returning a new String)
+        return rb_str_new(data, (long)data_len);
+    } else {
+        if (last_concat_pos < data_len) {
+            rb_str_cat(main_result, &data[last_concat_pos], (long)(data_len - last_concat_pos));
+        }
+        return main_result;
     }
-
-    return main_result;
 }
 
 inline void aho_register_match_callback(VALUE rb_result_container, struct ahocorasick * restrict aho,
