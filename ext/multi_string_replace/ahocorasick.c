@@ -49,7 +49,9 @@ int aho_add_match_text(struct ahocorasick * restrict aho, const char* text, unsi
 
     a_text->id = aho->accumulate_text_id++;
 
-    memcpy(a_text->text, text, len + 1);
+    // Copy exactly len bytes and add terminator once
+    memcpy(a_text->text, text, len);
+    a_text->text[len] = '\0';
 
     a_text->len = len;
     a_text->prev = NULL;
@@ -113,13 +115,18 @@ bool aho_del_match_text(struct ahocorasick * restrict aho, const int id)
 
 void aho_clear_match_text(struct ahocorasick * restrict aho)
 {
-    for(int i = 0; i < aho->accumulate_text_id; i++)
-    {
-        aho_del_match_text(aho, i);
+    struct aho_text_t* iter = aho->text_list_head;
+    while (iter) {
+        struct aho_text_t* nxt = iter->next;
+        free(iter->text);
+        free(iter);
+        iter = nxt;
     }
-
-    // reset id
+    // reset
     aho->accumulate_text_id = 0;
+    aho->text_list_head = NULL;
+    aho->text_list_tail = NULL;
+    aho->text_list_len = 0;
 }
 
 
@@ -148,7 +155,7 @@ void aho_clear_trie(struct ahocorasick * restrict aho)
 
 unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, unsigned long long data_len)
 {
-    int i = 0;
+    unsigned long long i = 0;
     int match_count = 0;
     struct aho_trie_node* travasal_node = NULL;
 
@@ -168,11 +175,7 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
         match.id = result->id;
         match.len = result->len;
 
-        match.pos = i - result->len + 1;
-        if (result->len == 1)
-        {
-            match.pos = i;
-        }
+    match.pos = i - result->len + 1;
 
         match_count++;
         if (aho->callback_match)
@@ -187,18 +190,17 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
 VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
     unsigned long long data_len, char *values[], long value_sizes[], VALUE ruby_values[])
 {
-    int i = 0;
-    int match_count = 0;
+    unsigned long long i = 0;
     struct aho_trie_node* travasal_node = NULL;
 
     travasal_node = &(aho->trie.root);
-    VALUE main_result = rb_str_new("", 0);
+    // Preallocate with input size; Ruby will grow if needed
+    VALUE main_result = rb_str_buf_new((long)data_len);
 
-    long last_concat_pos = 0;
+    unsigned long long last_concat_pos = 0;
 
     for (i = 0; i < data_len; i++)
     {
-        struct aho_match_t match;
         struct aho_text_t* result;
 
         result = aho_find_trie_node(&travasal_node, data[i]);
@@ -207,11 +209,8 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
             continue;
         }
 
-        long pos = i - result->len + 1;
-        if (result->len == 1)
-        {
-            pos = i;
-        }
+    const int rlen = result->len;
+    unsigned long long pos = i - rlen + 1;
 
         // concatenate from last_concat_pos
         if (pos > last_concat_pos) {
@@ -219,28 +218,39 @@ VALUE aho_replace_text(struct ahocorasick * restrict aho, const char* data,
         }
         
         // concatenate replace
-        if (values[result->id] == NULL) {
-            VALUE proc_result = rb_funcall(ruby_values[result->id], rb_intern("call"), 2, LONG2NUM(pos), LONG2NUM(pos + result->len));
-            if (RB_TYPE_P(proc_result, T_NIL)) {
-                rb_str_cat(main_result, &data[pos], result->len);
+        const int rid = result->id;
+        if (values[rid] == NULL) {
+            // NULL value indicates either: (1) no replacement supplied, or (2) a proc to compute it
+            if (!NIL_P(ruby_values[rid])) {
+                VALUE proc_result = rb_funcall(ruby_values[rid], rb_intern("call"), 2, LONG2NUM((long)pos), LONG2NUM((long)(pos + rlen)));
+                if (RB_TYPE_P(proc_result, T_NIL)) {
+                    rb_str_cat(main_result, &data[pos], rlen);
+                    last_concat_pos = i + 1;
+                    continue;
+                } else if (RB_TYPE_P(proc_result, T_STRING)) {
+                    rb_str_cat(main_result, StringValuePtr(proc_result), RSTRING_LEN(proc_result));
+                    last_concat_pos = i + 1;
+                    continue;
+                } else {
+                    VALUE string_result = rb_funcall(proc_result, rb_intern("to_s"), 0);
+                    rb_str_cat(main_result, StringValuePtr(string_result), RSTRING_LEN(string_result));
+                    last_concat_pos = i + 1;
+                    continue;
+                }
+            } else {
+                // no replacement provided; keep original slice
+                rb_str_cat(main_result, &data[pos], rlen);
                 last_concat_pos = i + 1;
                 continue;
-            } else if (RB_TYPE_P(proc_result, T_STRING)) {
-                value_sizes[result->id] = RSTRING_LEN(proc_result);
-                values[result->id] = StringValuePtr(proc_result);
-            } else {
-                VALUE string_result = rb_funcall(proc_result, rb_intern("to_s"), 0);
-                value_sizes[result->id] = RSTRING_LEN(string_result);
-                values[result->id] = StringValuePtr(string_result);
             }
         }
 
-        rb_str_cat(main_result, values[result->id], value_sizes[result->id]); 
+        rb_str_cat(main_result, values[rid], value_sizes[rid]); 
         last_concat_pos = i + 1;
     }
 
     if (last_concat_pos < data_len) {
-        rb_str_cat(main_result, &data[last_concat_pos], data_len - last_concat_pos);
+        rb_str_cat(main_result, &data[last_concat_pos], (long)(data_len - last_concat_pos));
     }
 
     return main_result;

@@ -58,6 +58,18 @@ Also adds a mreplace method to String which does the same thing:
 "The quick brown fox jumps over the lazy dog brown".mreplace({'brown' => 'black', 'fox' => ->(_, _) { "cat" }})
 ```
 
+### Reuse a compiled automaton (faster for repeated calls)
+
+When running many matches/replacements with the same set of keys, build the automaton once and reuse it:
+
+```ruby
+ac = MultiStringReplace::Automaton.new(['brown', 'fox'])
+ac.match("The quick brown fox")
+ac.replace("The quick brown fox", { 'brown' => 'black', 'fox' => 'wolf' })
+```
+
+This avoids rebuilding the trie/failure links on every call and can improve throughput significantly for repeated workloads.
+
 ## Performance
 
 Performing token replacement on a 200K text file repeated 100 times
@@ -94,6 +106,17 @@ bundle exec ruby bin/benchmark.rb
 Notes:
 - The script reads the sample text from `spec/fixtures/test.txt` and will write results to `replaced.txt` and `replaced2.txt` in the repo root.
 - To change the number of iterations or the input text, edit `bin/benchmark.rb` (look for the `100.times` loop and the `spec/fixtures/test.txt` path).
+- For repeated runs with the same keys, consider updating the benchmark to use `MultiStringReplace::Automaton` to showcase the speedup for batched workloads.
+
+Advanced benchmark flags:
+
+```bash
+# choose input and iterations
+bundle exec ruby bin/benchmark.rb -f spec/fixtures/test.txt -n 200
+
+# enable Automaton (reuse compiled trie)
+bundle exec ruby bin/benchmark.rb -A
+```
 
 ## Development
 
