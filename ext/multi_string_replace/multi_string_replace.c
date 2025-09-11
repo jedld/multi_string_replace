@@ -232,18 +232,13 @@ VALUE multi_string_replace(VALUE self, VALUE body, VALUE replace)
 
 void Init_multi_string_replace()
 {
-  int state;
   // Cache frequently used IDs
   id_keys = rb_intern("keys");
   id_values = rb_intern("values");
   id_to_s = rb_intern("to_s");
   id_call = rb_intern("call");
-  VALUE mod = rb_eval_string_protect("MultiStringReplace", &state);
-
-  if (state)
-  {
-    /* handle exception */
-  } else {
+  // Define or fetch the module without evaluating Ruby code
+  VALUE mod = rb_define_module("MultiStringReplace");
   rb_define_singleton_method(mod, "match", multi_string_match, 2);
   rb_define_singleton_method(mod, "replace", multi_string_replace, 2);
 
@@ -255,7 +250,6 @@ void Init_multi_string_replace()
   rb_define_method(cAutomaton, "replace", automaton_replace, 2);
   // Convenience builder: Automaton.build(keys)
   rb_define_singleton_method(cAutomaton, "build", RUBY_METHOD_FUNC(rb_class_new_instance), -1);
-  }
 
 }
 

@@ -166,6 +166,10 @@ unsigned int aho_findtext(struct ahocorasick * restrict aho, const char* data, u
         struct aho_match_t match;
         struct aho_text_t* result;
 
+        // ASCII fast-path: when at root with no child for byte, skip
+        if (travasal_node->parent == NULL && travasal_node->child_list[(unsigned char)data[i]] == NULL) {
+            continue;
+        }
         result = aho_find_trie_node(&travasal_node, data[i]);
         if (result == NULL)
         {

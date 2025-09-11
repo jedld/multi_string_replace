@@ -26,6 +26,8 @@ struct aho_trie_node
 struct aho_trie
 {
     struct aho_trie_node root;
+    // simple freelist pool for nodes
+    struct aho_trie_node* pool_head;
 };
 
 void aho_init_trie(struct aho_trie * restrict t);

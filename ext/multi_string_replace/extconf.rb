@@ -1,8 +1,9 @@
 require 'mkmf'
 
 # Optional: allow users to tweak optimization flags
-optflags = ENV['MSR_OPTFLAGS'] || '-O3 -fno-strict-aliasing'
-warnflags = ENV['MSR_WARNFLAGS']
+base_opt = '-O3 -fno-strict-aliasing'
+optflags = ENV['MSR_OPTFLAGS'] || base_opt
+optflags += ' -march=native' if ENV['MSR_NATIVE'] == '1'
 
 with_cflags(optflags) do
 	# avoid treating warnings as errors across diverse compilers

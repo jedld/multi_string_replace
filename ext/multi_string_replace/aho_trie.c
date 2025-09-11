@@ -16,11 +16,20 @@ void aho_init_trie(struct aho_trie * restrict t)
 {
     memset(t, 0x00, sizeof(struct aho_trie));
     __aho_trie_node_init(&(t->root));
+    t->pool_head = NULL;
 }
 
 void aho_destroy_trie(struct aho_trie * restrict t)
 {
     aho_clean_trie_node(t);
+    // free pooled nodes
+    struct aho_trie_node* it = t->pool_head;
+    while (it) {
+        struct aho_trie_node* nxt = it->next;
+        free(it);
+        it = nxt;
+    }
+    t->pool_head = NULL;
 }
 
 bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restrict text)
@@ -36,7 +45,8 @@ bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restric
         if (travasal_node->child_count == 0)
         {
             /* insert first node to child_list */
-            struct aho_trie_node* child = (struct aho_trie_node*) malloc(sizeof(struct aho_trie_node));
+            struct aho_trie_node* child = t->pool_head ? t->pool_head : (struct aho_trie_node*) malloc(sizeof(struct aho_trie_node));
+            if (t->pool_head) t->pool_head = t->pool_head->next;
 
             travasal_node->child_list[node_text] = child;
             travasal_node->first_child = child;
@@ -59,7 +69,8 @@ bool aho_add_trie_node(struct aho_trie * restrict t, struct aho_text_t * restric
         else
         {
             /* push_back to child_list */
-            struct aho_trie_node* child =  (struct aho_trie_node*) malloc(sizeof(struct aho_trie_node));
+            struct aho_trie_node* child = t->pool_head ? t->pool_head : (struct aho_trie_node*) malloc(sizeof(struct aho_trie_node));
+            if (t->pool_head) t->pool_head = t->pool_head->next;
 
             travasal_node->child_list[node_text] = child;
             travasal_node->child_count++;
@@ -199,7 +210,11 @@ void aho_clean_trie_node(struct aho_trie * restrict t)
             continue;
         }
 
-        free(remove_node);
+        // recycle nodes via freelist; keep root allocated
+        if (remove_node->parent != NULL) {
+            remove_node->next = t->pool_head;
+            t->pool_head = remove_node;
+        }
     }
 }
 

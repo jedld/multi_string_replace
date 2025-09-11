@@ -27,3 +27,12 @@
 
   - Prevent segfault with some binary characters. [#10](https://github.com/jedld/multi_string_replace/pull/10)
   
+# 3.0.1 (September 11, 2025)
+
+## Security/Hardening
+
+- Avoid runtime eval during extension init; use `rb_define_module` instead of `rb_eval_string_protect`.
+
+## Tests
+
+- Add consistency spec to compare Automaton#replace with module .replace over randomized inputs.

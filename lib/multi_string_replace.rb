@@ -14,3 +14,16 @@ class String
     MultiStringReplace.replace(self, attrs)
   end
 end
+
+# Batch helpers for ergonomics and performance
+module MultiStringReplace
+  def self.batch_match(keys, bodies)
+    ac = MultiStringReplace::Automaton.new(keys)
+    bodies.map { |b| ac.match(b) }
+  end
+
+  def self.batch_replace(bodies, replace)
+    ac = MultiStringReplace::Automaton.new(replace.keys)
+    bodies.map { |b| ac.replace(b, replace) }
+  end
+end
